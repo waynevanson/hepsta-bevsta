@@ -6,15 +6,27 @@
             url = "github:nix-community/fenix";
             inputs.nixpkgs.follows = "nixpkgs";
         };
+        nixpkgs.url = "nixpkgs/nixos-unstable";
     };
 
-    outputs = { self, nixpkgs, flake-utils, ...}:
+    outputs = { self, nixpkgs, flake-utils, fenix, ...}:
         flake-utils.lib.eachDefaultSystem (system:
             let
                 pkgs = nixpkgs.legacyPackages.${system};
+                rust' = (fenix.packages.${system}.complete.withComponents [
+                    "cargo"
+                    "clippy"
+                    "rust-src"
+                    "rustc"
+                    "rustfmt"
+                ]);
             in
                 {
-                    devShells.default = pkgs.mkShell rec {};
+                    devShells.default = pkgs.mkShell rec {
+                        nativeBuildInputs = with pkgs; [
+                            rust'
+                        ];
+                    };
                 }
         );
 }
