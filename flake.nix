@@ -8,13 +8,13 @@
         };
     };
 
-    outputs = { self, nixpkgs, flake-utils}:
+    outputs = { self, nixpkgs, flake-utils, ...}:
         flake-utils.lib.eachDefaultSystem (system:
             let
                 pkgs = nixpkgs.legacyPackages.${system};
             in
                 {
-                    shell.default = pkgs.mkShell rec {};
+                    devShells.default = pkgs.mkShell rec {};
                 }
         );
 }
