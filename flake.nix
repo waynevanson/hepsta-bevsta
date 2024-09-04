@@ -13,13 +13,10 @@
         flake-utils.lib.eachDefaultSystem (system:
             let
                 pkgs = nixpkgs.legacyPackages.${system};
-                rust' = (fenix.packages.${system}.complete.withComponents [
-                    "cargo"
-                    "clippy"
-                    "rust-src"
-                    "rustc"
-                    "rustfmt"
-                ]);
+                rust' = (fenix.packages.${system}.fromToolchainFile { 
+                    file = "./rust-toolchain.toml";
+                    sha256 = "huh";
+                });
             in
                 {
                     devShells.default = pkgs.mkShell rec {
