@@ -34,13 +34,12 @@
                     xorg.libX11 xorg.libXcursor xorg.libXi xorg.libXrandr # To use the x11 feature
                     libxkbcommon wayland # To use the wayland feature
                 ];
-                libPath = with pkgs; lib.makeLibraryPath buildInputs;
                 env = with pkgs; {
                     LIBCLANG_PATH = lib.makeLibraryPath [
                         llvmPackages_latest.libclang.lib
                     ];
                     RUSTFLAGS = (builtins.map(a: ''-L ${a}/lib'') []);
-                    LD_LIBRARY_PATH = libPath;
+                    LD_LIBRARY_PATH = lib.makeLibraryPath buildInputs;
                     BINGEN_EXTRA_CLANG_ARGS = (builtins.map(a: ''-I"${a}/include"'') [
                         pkgs.glibc.dev
                     ]) ++ [
