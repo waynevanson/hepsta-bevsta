@@ -5,36 +5,7 @@ edition = "2021"
 resolver = "2"
 
 [dependencies]
-bevy = { version = "0.14.1", features = [
-    "animation",
-    "bevy_asset",
-    "bevy_state",
-    "bevy_audio",
-    "bevy_color",
-    "bevy_gilrs",
-    "bevy_scene",
-    "bevy_winit",
-    "bevy_core_pipeline",
-    "bevy_pbr",
-    "bevy_gltf",
-    "bevy_render",
-    "bevy_sprite",
-    "bevy_text",
-    "bevy_ui",
-    "multi_threaded",
-    "png",
-    "hdr",
-    "vorbis",
-    # "x11",
-    "bevy_gizmos",
-    "android_shared_stdcxx",
-    "tonemapping_luts",
-    "smaa_luts",
-    "default_font",
-    "webgl2",
-    "sysinfo_plugin",
-    "wayland",
-], default-features = false }
+bevy = { version = "0.14.1" }
 
 [profile.dev]
 opt-level = 1
