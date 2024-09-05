@@ -9,15 +9,16 @@ use bevy::{
         },
         view::RenderLayers,
     },
-    sprite::MaterialMesh2dBundle,
     window::WindowResized,
 };
 
+const FACTOR: u32 = 4;
+
 /// In-game resolution width.
-const RES_WIDTH: u32 = 1920 / 4;
+const RES_WIDTH: u32 = 1920 / FACTOR;
 
 /// In-game resolution height.
-const RES_HEIGHT: u32 = 1080 / 4;
+const RES_HEIGHT: u32 = 1080 / FACTOR;
 
 /// Default render layers for pixel-perfect rendering.
 /// You can skip adding this component, as this is the default.
@@ -29,6 +30,7 @@ const HIGH_RES_LAYERS: RenderLayers = RenderLayers::layer(1);
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        .insert_state(Direction(true))
         .insert_resource(Msaa::Off)
         .add_systems(Startup, (setup_camera, setup_sprite))
         .add_systems(Update, (rotate, fit_canvas))
@@ -135,9 +137,14 @@ fn setup_camera(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
 }
 
 /// Rotates entities to demonstrate grid snapping.
-fn rotate(time: Res<Time>, mut transforms: Query<&mut Transform, With<Rotate>>) {
+fn rotate(
+    time: Res<Time>,
+    clockwise: Res<State<Direction>>,
+    mut transforms: Query<&mut Transform, With<Rotate>>,
+) {
     for mut transform in &mut transforms {
         let dt = time.delta_seconds();
+        let dt = if clockwise.get().0 { -dt } else { dt };
         transform.rotate_z(dt);
     }
 }
@@ -151,6 +158,9 @@ fn fit_canvas(
         let h_scale = event.width / RES_WIDTH as f32;
         let v_scale = event.height / RES_HEIGHT as f32;
         let mut projection = projections.single_mut();
-        projection.scale = 0.25 / h_scale.min(v_scale).round();
+        projection.scale = (0.5 / FACTOR as f32) * h_scale.min(v_scale).round();
     }
 }
+
+#[derive(States, Debug, Hash, Eq, PartialEq, Clone)]
+struct Direction(bool);
