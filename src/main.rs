@@ -14,10 +14,10 @@ use bevy::{
 };
 
 /// In-game resolution width.
-const RES_WIDTH: u32 = 160;
+const RES_WIDTH: u32 = 1920 / 4;
 
 /// In-game resolution height.
-const RES_HEIGHT: u32 = 90;
+const RES_HEIGHT: u32 = 1080 / 4;
 
 /// Default render layers for pixel-perfect rendering.
 /// You can skip adding this component, as this is the default.
@@ -30,7 +30,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .insert_resource(Msaa::Off)
-        .add_systems(Startup, (setup_camera, setup_sprite, setup_mesh))
+        .add_systems(Startup, (setup_camera, setup_sprite))
         .add_systems(Update, (rotate, fit_canvas))
         .run();
 }
@@ -56,7 +56,7 @@ fn setup_sprite(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         SpriteBundle {
             texture: asset_server.load("pixel/bevy_pixel_dark.png"),
-            transform: Transform::from_xyz(-40., 20., 2.),
+            // transform: Transform::from_xyz(-40., 20., 2.),
             ..default()
         },
         Rotate,
@@ -72,24 +72,6 @@ fn setup_sprite(mut commands: Commands, asset_server: Res<AssetServer>) {
         },
         Rotate,
         HIGH_RES_LAYERS,
-    ));
-}
-
-/// Spawns a capsule mesh on the pixel-perfect layer.
-fn setup_mesh(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-) {
-    commands.spawn((
-        MaterialMesh2dBundle {
-            mesh: meshes.add(Capsule2d::default()).into(),
-            transform: Transform::from_xyz(40., 0., 2.).with_scale(Vec3::splat(32.)),
-            material: materials.add(Color::BLACK),
-            ..default()
-        },
-        Rotate,
-        PIXEL_PERFECT_LAYERS,
     ));
 }
 
@@ -169,6 +151,6 @@ fn fit_canvas(
         let h_scale = event.width / RES_WIDTH as f32;
         let v_scale = event.height / RES_HEIGHT as f32;
         let mut projection = projections.single_mut();
-        projection.scale = 1. / h_scale.min(v_scale).round();
+        projection.scale = 0.25 / h_scale.min(v_scale).round();
     }
 }

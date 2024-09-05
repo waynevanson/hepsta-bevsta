@@ -12,34 +12,35 @@
     outputs = { self, nixpkgs, flake-utils, fenix, ...}:
         flake-utils.lib.eachDefaultSystem (system:
             let
+                overlays = [fenix.overlays.default];
                 pkgs = import nixpkgs {
-                    overlays = [fenix.overlays.default];
-                    config.allowUnfree = true;
-                    inherit system;
+                    inherit system overlays;
                 };
                 rust' = fenix.packages.${system}.fromToolchainFile { 
                     file = ./rust-toolchain.toml;
                     sha256 = "sha256-sZ4gSN88DqNWcUSUloG3tX8hZulnsvmtkRIpWMPPzBg=";
                 };
-                vscode' = with pkgs; vscode-with-extensions.override {
-                    vscodeExtensions = [
-                        vscode-extensions.rust-lang.rust-analyzer-nightly
-                    ];
-                };
+                nativeBuildInputs = with pkgs; [
+                    clang
+                    llvmPackages.bintools
+                    pkg-config
+                    rust'
+                ];
                 buildInputs = with pkgs; [
                     rust-analyzer-nightly
-                    vscode'
+                    cargo-watch
 
                     udev alsa-lib vulkan-loader
                     xorg.libX11 xorg.libXcursor xorg.libXi xorg.libXrandr # To use the x11 feature
                     libxkbcommon wayland # To use the wayland feature
                 ];
+                allInputs = nativeBuildInputs ++ buildInputs;
                 env = with pkgs; {
                     LIBCLANG_PATH = lib.makeLibraryPath [
                         llvmPackages_latest.libclang.lib
                     ];
                     RUSTFLAGS = (builtins.map(a: ''-L ${a}/lib'') []);
-                    LD_LIBRARY_PATH = lib.makeLibraryPath buildInputs;
+                    LD_LIBRARY_PATH = lib.makeLibraryPath allInputs;
                     BINGEN_EXTRA_CLANG_ARGS = (builtins.map(a: ''-I"${a}/include"'') [
                         pkgs.glibc.dev
                     ]) ++ [
@@ -49,13 +50,7 @@
                     ];
                 };
                 shell = rec {
-                    nativeBuildInputs = with pkgs; [
-                        clang
-                        llvmPackages.bintools
-                        pkg-config
-                        rust'
-                    ];
-                    inherit buildInputs;
+                    inherit nativeBuildInputs buildInputs;
 
                     shellHook = ''
                         export PATH=$PATH:''${CARGO_HOME:-~/.cargo}/bin

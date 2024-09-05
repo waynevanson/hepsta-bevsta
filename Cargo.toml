@@ -5,7 +5,7 @@ edition = "2021"
 resolver = "2"
 
 [dependencies]
-bevy = { version = "0.14.1" }
+bevy = { version = "0.14.1", features = ["dynamic_linking"] }
 
 [profile.dev]
 opt-level = 1
