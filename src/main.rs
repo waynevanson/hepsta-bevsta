@@ -12,7 +12,7 @@ use bevy::{
     window::WindowResized,
 };
 
-const FACTOR: u32 = 4;
+const FACTOR: u32 = 8;
 
 /// In-game resolution width.
 const RES_WIDTH: u32 = 1920 / FACTOR;
@@ -33,7 +33,7 @@ fn main() {
         .insert_state(Direction(true))
         .insert_resource(Msaa::Off)
         .add_systems(Startup, (setup_camera, setup_sprite))
-        .add_systems(Update, (rotate, fit_canvas))
+        .add_systems(Update, (rotate, fit_canvas, handle_on_space))
         .run();
 }
 
@@ -158,9 +158,25 @@ fn fit_canvas(
         let h_scale = event.width / RES_WIDTH as f32;
         let v_scale = event.height / RES_HEIGHT as f32;
         let mut projection = projections.single_mut();
-        projection.scale = (0.5 / FACTOR as f32) * h_scale.min(v_scale).round();
+        projection.scale = 1. / h_scale.min(v_scale).round();
     }
 }
 
 #[derive(States, Debug, Hash, Eq, PartialEq, Clone)]
 struct Direction(bool);
+
+impl Direction {
+    fn toggle(&self) -> Self {
+        Self(!self.0)
+    }
+}
+
+fn handle_on_space(
+    keys: Res<ButtonInput<KeyCode>>,
+    previous: Res<State<Direction>>,
+    mut next: ResMut<NextState<Direction>>,
+) {
+    if keys.just_pressed(KeyCode::Space) {
+        next.set(previous.get().toggle())
+    }
+}
