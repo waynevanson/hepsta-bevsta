@@ -1,4 +1,4 @@
-//! Shows how to create graphics that snap to the pixel grid by rendering to a texture in 2D
+mod cameras;
 
 use bevy::{
     prelude::*,
@@ -30,7 +30,7 @@ const HIGH_RES_LAYERS: RenderLayers = RenderLayers::layer(1);
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
-        .insert_state(Direction(true))
+        .init_state::<Clockwise>()
         .insert_resource(Msaa::Off)
         .add_systems(Startup, (setup_camera, setup_sprite))
         .add_systems(Update, (rotate, fit_canvas, handle_on_space))
@@ -139,11 +139,11 @@ fn setup_camera(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
 /// Rotates entities to demonstrate grid snapping.
 fn rotate(
     time: Res<Time>,
-    clockwise: Res<State<Direction>>,
+    clockwise: Res<State<Clockwise>>,
     mut transforms: Query<&mut Transform, With<Rotate>>,
 ) {
     for mut transform in &mut transforms {
-        let dt = time.delta_seconds();
+        let dt = time.delta_seconds() * 4.;
         let dt = if clockwise.get().0 { -dt } else { dt };
         transform.rotate_z(dt);
     }
@@ -162,10 +162,10 @@ fn fit_canvas(
     }
 }
 
-#[derive(States, Debug, Hash, Eq, PartialEq, Clone)]
-struct Direction(bool);
+#[derive(States, Debug, Hash, Eq, PartialEq, Clone, Default)]
+struct Clockwise(bool);
 
-impl Direction {
+impl Clockwise {
     fn toggle(&self) -> Self {
         Self(!self.0)
     }
@@ -173,8 +173,8 @@ impl Direction {
 
 fn handle_on_space(
     keys: Res<ButtonInput<KeyCode>>,
-    previous: Res<State<Direction>>,
-    mut next: ResMut<NextState<Direction>>,
+    previous: Res<State<Clockwise>>,
+    mut next: ResMut<NextState<Clockwise>>,
 ) {
     if keys.just_pressed(KeyCode::Space) {
         next.set(previous.get().toggle())
