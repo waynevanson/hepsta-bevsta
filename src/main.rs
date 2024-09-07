@@ -11,6 +11,7 @@ use bevy::{
     },
     window::WindowResized,
 };
+use bevy_pixels::PixelsPlugin;
 
 const FACTOR: u32 = 8;
 
@@ -29,7 +30,7 @@ const HIGH_RES_LAYERS: RenderLayers = RenderLayers::layer(1);
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        .add_plugins((DefaultPlugins, PixelsPlugin::default()))
         .init_state::<Clockwise>()
         .insert_resource(Msaa::Off)
         .add_systems(Startup, (setup_camera, setup_sprite))

@@ -5,7 +5,36 @@ edition = "2021"
 resolver = "2"
 
 [dependencies]
-bevy = { version = "0.13", features = ["dynamic_linking"] }
+bevy = { version = "0.13", default-features = false, features = [
+    "dynamic_linking",
+    "wayland",
+
+    # Defaults, excluding `bevy_render`
+    "animation",
+    "bevy_asset",
+    "bevy_audio",
+    "bevy_gilrs",
+    "bevy_scene",
+    "bevy_winit",
+    "bevy_core_pipeline",
+    "bevy_pbr",
+    "bevy_gltf",
+    "bevy_sprite",
+    "bevy_text",
+    "bevy_ui",
+    "multi-threaded",
+    "png",
+    "hdr",
+    "vorbis",
+    "x11",
+    "bevy_gizmos",
+    "android_shared_stdcxx",
+    "tonemapping_luts",
+    "default_font",
+    "webgl2",
+    "bevy_debug_stepping",
+] }
+bevy_pixels = { version = "0.13.0", features = ["wayland"] }
 log = { version = "*", features = [
     "max_level_debug",
     "release_max_level_warn",
